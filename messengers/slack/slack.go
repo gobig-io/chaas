@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
-	"sync/atomic"
 	"time"
 
 	"github.com/gobig-io/chaas"
@@ -50,7 +49,6 @@ type users struct {
 
 // Message is a slack message
 type Message struct {
-	ID      uint64 `json:"ID"`
 	Type    string `json:"type"`
 	Channel string `json:"channel"`
 	User    string `json:"user"`
@@ -168,10 +166,11 @@ func (m *Slack) Listen(msg *bot.Message) error {
 
 // Write sends the messange
 func (m *Slack) Write(data []byte) (int, error) {
-	m.message.ID = atomic.AddUint64(&counter, 1)
-	m.message.Text = string(data)
 	time.Sleep(500 * time.Millisecond)
-	log.Println("message: ", m)
+	m.message.User = m.config.ID
+	m.message.Text = string(data)
+	m.message.Time = tm(strconv.FormatInt(time.Now().UTC().Unix(), 10))
+	log.Printf("message: %#v\n", m.message)
 	if err := websocket.JSON.Send(m.conn, m.message); err != nil {
 		fmt.Println(err)
 	}
