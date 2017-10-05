@@ -97,7 +97,7 @@ func NewOption(op string, msg string) (*Option, error) {
 	}
 	key := p[1]
 	replacement := p[2]
-	replace := fmt.Sprintf("%s ([a-zA-Z0-9-_.!@#*()]+)", replacement)
+	replace := fmt.Sprintf("%s ([a-zA-Z0-9-/_.!@#*()+]+)", replacement)
 	re, err = regexp.Compile(replace)
 	if err != nil {
 		return &Option{}, err
