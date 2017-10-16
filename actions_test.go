@@ -9,6 +9,8 @@ func TestNewOptions(t *testing.T) {
 		[]string{"sql*=sql is", "sql is select * from users;", "sql", "select * from users;"},
 		[]string{"query*=query:", "query: select * from users;", "query", "select * from users;"},
 		[]string{"folder=folder is", "folder is /var/lib", "folder", "/var/lib"},
+		[]string{"from=from", "mktag from dev tag 1.2.3", "from", "dev"},
+		[]string{"tag=tag", "mktag from dev tag 1.2.3", "tag", "1.2.3"},
 	}
 	for _, test := range tests {
 		op, err := NewOption(test[0], test[1])
