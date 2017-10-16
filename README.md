@@ -21,7 +21,7 @@ messaging platform
 
 
 ## Building
-Chaas recomends go > 1.7.
+Chaas recommends go > 1.7.
 
 To build a slack bot
   make bin/slack
