@@ -18,14 +18,16 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	log.Printf("starting %s", config.Name)
 	for {
 		msg := bot.NewMessage(config)
-		if err := b.Listen(msg); err != nil {
+		m := b.Messenger()
+		if err := m.Listen(msg); err != nil {
 			//log.Println(err)
 			continue
 		}
 		go func(msg *bot.Message) {
-			if err := msg.Process(b, directions); err != nil {
+			if err := msg.Process(m, directions); err != nil {
 				log.Println(err)
 			}
 		}(msg)

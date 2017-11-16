@@ -32,7 +32,6 @@ type Slack struct {
 	ID      string
 	config  *bot.Config
 	conn    *websocket.Conn
-	reader  *strings.Reader
 	message *Message
 	users   users
 }
@@ -124,9 +123,23 @@ func (m *Slack) connect() error {
 	return nil
 }
 
+func (m *Slack) Messenger() bot.Messenger {
+	return &SlackMessenger{
+		b:    m,
+		conn: m.conn,
+	}
+}
+
+type SlackMessenger struct {
+	b       *Slack
+	channel string
+	conn    *websocket.Conn
+	message *Message
+}
+
 //UserAndEmail returns the user,email
-func (m *Slack) UserAndEmail() (string, string) {
-	for _, user := range m.users.Members {
+func (m *SlackMessenger) UserAndEmail() (string, string) {
+	for _, user := range m.b.users.Members {
 		if m.message.User == user.ID {
 			return user.Name, user.Profile.Email
 		}
@@ -134,11 +147,11 @@ func (m *Slack) UserAndEmail() (string, string) {
 	return "", ""
 }
 
-func (m *Slack) Read(b []byte) (int, error) {
+func (m *SlackMessenger) Read(b []byte) (int, error) {
 	return 0, nil
 }
 
-func (m *Slack) read() (*strings.Reader, error) {
+func (m *SlackMessenger) read() (*strings.Reader, error) {
 	var msg Message
 	if err := websocket.JSON.Receive(m.conn, &msg); err != nil {
 		return nil, err
@@ -151,7 +164,7 @@ func (m *Slack) read() (*strings.Reader, error) {
 }
 
 // Listen reads and scans message
-func (m *Slack) Listen(msg *bot.Message) error {
+func (m *SlackMessenger) Listen(msg *bot.Message) error {
 	for {
 		reader, err := m.read()
 		if err != nil {
@@ -165,9 +178,9 @@ func (m *Slack) Listen(msg *bot.Message) error {
 }
 
 // Write sends the messange
-func (m *Slack) Write(data []byte) (int, error) {
+func (m *SlackMessenger) Write(data []byte) (int, error) {
 	time.Sleep(500 * time.Millisecond)
-	m.message.User = m.config.ID
+	m.message.User = m.b.config.ID
 	m.message.Text = string(data)
 	m.message.Time = tm(strconv.FormatInt(time.Now().UTC().Unix(), 10))
 	log.Printf("message: %#v\n", m.message)
@@ -178,7 +191,7 @@ func (m *Slack) Write(data []byte) (int, error) {
 }
 
 // Respond sends the bot results to the writer
-func (m *Slack) Respond(results []*bot.Result) error {
+func (m *SlackMessenger) Respond(results []*bot.Result) error {
 	writer := bufio.NewWriter(m)
 	for _, r := range results {
 		if r.Status > 0 {
