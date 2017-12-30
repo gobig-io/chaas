@@ -1,0 +1,9 @@
+{
+  "actions": ".",
+  "directions": [
+    {
+      "actions": ["example"],
+      "words": ["~hello"]
+    }
+  ]
+}

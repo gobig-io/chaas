@@ -1,7 +1,0 @@
-{
-  "name" : "chaas",
-  "actions": "../actions",
-  "directions": [
-    {"words": ["hi", "hi,", "hi!"], "actions": ["gwoo/hi"]}
-  ]
-}
